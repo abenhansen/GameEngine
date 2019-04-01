@@ -2,9 +2,6 @@ package mike.sucks.gameengine19;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.util.Log;
-
-import java.util.Random;
 
 public class TestScreen extends Screen{
 
@@ -17,9 +14,9 @@ public class TestScreen extends Screen{
 
     public TestScreen (GameEngine gameEngine) {
         super(gameEngine);
-        bitmap = gameEngine.loadBitmap("bob.png");
-        sound = gameEngine.loadSound("blocksplosion.wav");
-        backgroundMusic = gameEngine.loadMusic("music.ogg");
+        bitmap = gameEngine.loadBitmap("BreakoutAssets/bob.png");
+        sound = gameEngine.loadSound("BreakoutAssets/blocksplosion.wav");
+        backgroundMusic = gameEngine.loadMusic("BreakoutAssets/music.ogg");
         isPlaying = true;
     }
 

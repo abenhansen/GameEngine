@@ -1,12 +1,15 @@
 package mike.sucks.gameengine19;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -25,10 +28,11 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GameEngine extends AppCompatActivity implements Runnable, TouchHandler, SensorEventListener {
+public abstract class GameEngine extends Activity implements Runnable, TouchHandler, SensorEventListener {
 
     private Thread mainLoopThread;
     private State state = State.Paused;
@@ -51,9 +55,13 @@ public abstract class GameEngine extends AppCompatActivity implements Runnable, 
     private int framesPerSecound = 0;
     long currentTime = 0;
     long lastTime = 0;
+    Paint paint = new Paint();
+    public Music music;
 
     public abstract Screen createStartScreen();
     public void setScreen(Screen screen){
+        if (this.screen != null) this.screen.dispose();
+        this.screen = screen;
     }
 
     @Override
@@ -154,6 +162,21 @@ public abstract class GameEngine extends AppCompatActivity implements Runnable, 
 
     }
 
+    public Typeface loadFont(String fileName){
+        Typeface font = Typeface.createFromAsset(getAssets(), fileName);
+        if(font == null) {
+            throw new RuntimeException("Oh shit, I could not load the font from file: "+fileName);
+        }
+        return font;
+    }
+
+    public void drawText(Typeface font, String text, int x, int y, int color, int size){
+        paint.setTypeface(font);
+        paint.setTextSize(size);
+        paint.setColor(color);
+        canvas.drawText(text,x,y,paint);
+    }
+
     public Sound loadSound(String fileName){
 
         try {
@@ -179,6 +202,11 @@ public abstract class GameEngine extends AppCompatActivity implements Runnable, 
     public boolean isTouchDown(int pointer){
         return touchHandler.isTouchDown(pointer);
     }
+
+    public List<TouchEvent> getTouchEvents(){
+        return touchEventCopied;
+    }
+
     public int getTouchX(int pointer) {
         int scaledX = 0;
         scaledX = (int)((float)touchHandler.getTouchX(pointer)*(float)offscreenSurface.getWidth()/(float)surfaceView.getWidth());
@@ -237,8 +265,9 @@ public abstract class GameEngine extends AppCompatActivity implements Runnable, 
                         return;
                     }
                     if (state == State.Paused) {
-                        Log.d("GameEngine", "State changed to Pause");
-                        return;
+//                        Log.d("GameEngine", "State changed to Pause");
+//                       this.state = state.Paused;
+                       screen.pause();
                     }
                     if (state == State.Resumed) {
                         Log.d("GameEngine", "State changed to Resumed");
